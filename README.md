@@ -1,1 +1,1 @@
-# Arduino Y-Netzwerk am Beispiel eines Pflueckrobotters
+# Arduino Y-WiFi network for a harvestroboter
