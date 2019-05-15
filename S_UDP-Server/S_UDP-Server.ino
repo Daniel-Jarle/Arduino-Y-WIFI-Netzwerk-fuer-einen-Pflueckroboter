@@ -4,7 +4,7 @@
   For the definition of the AT commands, see for
   https://room-15.github.io/blog/2015/03/26/esp8266-at-command-reference/#at-commands
   For the definitions of the comands, see for text file: "list of commands"
-  
+
   The serial monitor has to be set to Baud 19200 and CR and LF active.
   Messages to be send or received by ESP or entered via Serial Monitor have the following syntax:
   <message Msg> : <char original sender Id on send or final receiver Id on receive>
@@ -30,7 +30,7 @@ bool ESPsga = true; //ESPsga (ESP self generated answer) means the incoming is s
 //flags
 
 bool calflag = false; //indicates if calibration is in progress, the offsets are deactivated, when calflag == 1
-bool fa1 = false, fb1 = false, fa2 = false, fb2 = false, reqflag = false, demoflag = false; // flags for alpha1 and so on, indicating that the respective value has been received
+bool fa1 = false, fb1 = false, fa2 = false, fb2 = false, reqflag = false; // flags for alpha1 and so on, indicating that the respective value has been received
 
 //calculation
 #define pi 3.14159
@@ -47,7 +47,7 @@ double s1 = 8, s2 = 8, zc = 0.4;             //A devided by squareroot of 2 form
 
 
 void setup() {
-  Serial.begin(19200);                      
+  Serial.begin(19200);
 
   //network
   esp8266.begin(19200);                     //starts a SofrwareSerial link with esp8266 object on 19200 baut rate
@@ -73,7 +73,7 @@ void loop() {
   while (esp8266.available()) {
     if (ESPsga) {//if assumed, that it is ESP self generated answer, check it
       InChar = esp8266.read();  //reads the message from the esp module
-      if (InChar == '+') {      
+      if (InChar == '+') {
         esp8266.find("IPD,");
         delay(1);
         //read original sender Id: osId
@@ -151,7 +151,7 @@ void loop() {
   } // else: computing and other code
 
   //calculation
-// calculations for callibration, whan all angles are recived
+  // calculations for callibration, whan all angles are recived
   if ((fa1 && fb1 && fa2 && fb2 && calflag) == true) {
     computeangles();// command "ca" supposed, that s1, s2, zc have given before
     computeoffsets();// command "co"
@@ -171,19 +171,6 @@ void loop() {
     fa2 = false;
     fb2 = false;
   }
-  // calculations and commands for demmomode
-  if (fa1 && fb1 && fa2 && fb2 && demoflag) {
-    computecoord();
-    sc("2", "1");
-    delay(10);
-    sc("2", "2");
-    fa1 = false;
-    fb1 = false;
-    fa2 = false;
-    fb2 = false;
-
-  }
-
 }
 
 //-----------------------------------------Config ESP8266------------------------------------
@@ -266,7 +253,7 @@ void decodeMsg(void) {
   Number = Msg.toFloat();
   //commands
   // correct incoming and addressed values from C1 and C2 with respect to positions
-  if (Msg.endsWith("ph")) { 
+  if (Msg.endsWith("ph")) {
     if (osId == "1") {        // saves the value to the according angle
       pa1 = Number;
       if (!calflag)pa1 += oa1;
@@ -274,7 +261,7 @@ void decodeMsg(void) {
       Serial.println("pa1 = " + (String)pa1);
       return;
     }
-    if (osId == "2") {        
+    if (osId == "2") {
       pa2 = 180 - Number;
       if (!calflag)pa2 += oa2;
       fa2 = true;
@@ -297,7 +284,6 @@ void decodeMsg(void) {
       Serial.println("pb2 = " + (String)pb2);
     }
   }
-
   if (Msg.endsWith("zc")) { //imputs a callibration value for z
     zc = Number;
     Serial.println("zc = " + (String)zc);
@@ -336,7 +322,6 @@ void decodeMsg(void) {
     computeoffsets();
     return;
   }
-
   if (Msg.endsWith("cc")) {// compute cartesian coordinates
     computecoord();
     return;
@@ -358,9 +343,6 @@ void decodeMsg(void) {
     reqflag = true;
     Serial.println("scan request " + (String)reqflag);
   }
-  if (Msg.endsWith("df")) { //starts demo ////
-    demoflag = !demoflag;
-  }
   if (Msg.endsWith("st")) { //stops all actions on clients
     Msg = "st";
     frId = "1";
@@ -377,7 +359,7 @@ void decodeMsg(void) {
     fb2 = false;
     reqflag = false;
   }
-  
+
   if (Msg.endsWith("rc")) { // rests goniometer to their starting positon /////
     frId = "1";
     Msg = (String)(90 + oa1) + "ph";
