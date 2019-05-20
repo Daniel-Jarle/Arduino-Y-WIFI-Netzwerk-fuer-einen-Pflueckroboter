@@ -9,7 +9,6 @@
   Messages to be send or received by ESP or entered via Serial Monitor have the following syntax:
   <message Msg> : <char original sender Id on send or final receiver Id on receive>
   example: 100pv:0
-  distance in dm
 */
 
 #include <SoftwareSerial.h>
